@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Dashboard</h2>
+  <p>Welcome to your dashboard. Here, you can manage your subscriptions, view latest issues, and more.</p>
+
+  <div class="list-group">
+    <a href="{{ url_for('main.view_latest_issues') }}" class="list-group-item list-group-item-action">View Latest Issue</a>
+    {% if session.get('is_admin') %}
+    <a href="{{ url_for('main.upload_file') }}" class="list-group-item list-group-item-action">Upload New Issue</a>
+    <a href="{{ url_for('main.admin') }}" class="list-group-item list-group-item-action">Admin Panel</a>
+    {% endif %}
+    <a href="{{ url_for('main.manage_subscriptions') }}" class="list-group-item list-group-item-action">Manage Subscription</a>
+  </div>
+</div>
+{% endblock %}

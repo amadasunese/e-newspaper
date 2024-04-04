@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Subscribe</h2>
+    <form action="{{ url_for('main.subscribe') }}" method="post">
+        <label for="edition">Select Edition</label>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select Edition
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                {% for newspaper in newspapers %}
+                <a class="dropdown-item" href="#" data-id="{{ newspaper.id }}">
+                    {% if newspaper.thumbnail %}
+                        <img src="{{ url_for('static', filename='pdfs/' + newspaper.thumbnail) }}" alt="{{ newspaper.title }} Thumbnail" style="height: 20px;">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='pdfs/thumbnail.png') }}" alt="Default Thumbnail" style="height: 20px;">
+                    {% endif %}
+                    {{ newspaper.title }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        <!-- Hidden input to store the selected edition ID -->
+        <input type="hidden" name="newspaper" id="selectedNewspaperId">
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+    </form>
+</div>
+
+<!-- Custom JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var items = document.querySelectorAll('.dropdown-item');
+    items.forEach(function (item) {
+        item.addEventListener('click', function (e) {
+            e.preventDefault();
+            var id = this.getAttribute('data-id');
+            // Obtain newspaper title, excluding the text of the child <img> tag if present
+            var title = this.textContent.trim();
+            document.getElementById('selectedNewspaperId').value = id; // Update hidden input value
+            // Update button text to show the selected newspaper title
+            document.getElementById('dropdownMenuButton').textContent = title;
+        });
+    });
+});
+</script>
+{% endblock %}

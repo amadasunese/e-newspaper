@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Latest Issues</h2>
+    <div class="row">
+        {% for newspaper in newspapers %}
+        <div class="col-md-4">
+            <div class="thumbnail">
+                <a href="{{ url_for('main.view_newspaper', newspaper_id=newspaper.id) }}">
+                    {% if newspaper.thumbnail %}
+                        <img src="{{ url_for('static', filename='pdfs/' + newspaper.thumbnail) }}" alt="Issue" style="width: 400px; height: auto;">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='pdfs/thumbnail.png') }}" alt="Issue">
+                    {% endif %}
+                </a>
+                <div class="caption">
+                    <p>{{ newspaper.title }}</p>
+                    <!-- Subscribe Button -->
+                    <a href="{{ url_for('main.process_payment') }}" class="btn btn-primary btn-sm">Subscribe</a>
+                    <!-- Delete Action Form (Keep if necessary) -->
+                    <form action="{{ url_for('main.delete_newspaper', newspaper_id=newspaper.id) }}" method="POST" style="display:inline;">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

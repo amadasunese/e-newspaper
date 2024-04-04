@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Subscribe</h2>
+    <form action="{{ url_for('main.subscribe_and_pay') }}" method="post">
+        <div class="form-group">
+            <label for="edition">Select Edition</label>
+            <select class="form-control" id="edition" name="edition">
+                {% for newspaper in newspapers %}
+                <option value="{{ newspaper.id }}">{{ newspaper.thumbnail }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+    </form>
+</div>
+{% endblock %}

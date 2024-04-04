@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Manage Subscriptions</h2>
+    <ul class="list-group">
+        {% for subscription in subscriptions %}
+        <li class="list-group-item">
+            Edition: {{ subscription.edition.title }} <!-- Assuming the field is title, not name -->
+            <button onclick="location.href='{{ url_for('main.cancel_subscription', id=subscription.id) }}'" class="btn btn-danger float-right">Cancel</button>
+            <button onclick="location.href='{{ url_for('main.renew_subscription', id=subscription.id) }}'" class="btn btn-primary float-right mr-2">Renew</button>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
