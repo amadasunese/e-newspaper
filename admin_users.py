@@ -25,6 +25,7 @@ def add_admin(username, password):
         print(f"Admin {username} {password} added successfully.")
 
 if __name__ == '__main__':
+    # name = input("Enter admin name: ")
     username = input("Enter admin email: ")
     # last_name = input("Enter admin last name: ")
     # email = input("Enter admin email: ")

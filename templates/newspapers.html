@@ -1,0 +1,32 @@
+<!-- newspapers.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Select a Newspaper</h2>
+    <div class="row">
+        {% for newspaper in newspapers[::-1] %}
+        <div class="col-md-4">
+            <div class="card" style="width: 18rem;">
+                <img src="{{ url_for('static', filename='pdfs/' + (newspaper.thumbnail or 'default.jpg')) }}" class="card-img-top" alt="{{ newspaper.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ newspaper.title }}</h5>
+                    <p class="card-text">{{ newspaper.summary }}</p>
+                    {% if newspaper.id in subscribed_newspapers %}
+                        <a href="{{ url_for('main.read_newspaper', newspaper_id=newspaper.id) }}" class="btn btn-success">Read</a>
+                    {% else %}
+                        <a href="{{ url_for('main.subscribe_and_pay', newspaper_id=newspaper.id) }}" class="btn btn-primary">Subscribe & Pay</a>
+                    {% endif %}
+                    {% if current_user.is_admin %}
+                        <form action="{{ url_for('main.delete_newspaper', newspaper_id=newspaper.id) }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

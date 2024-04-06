@@ -3,7 +3,7 @@ from flask_migrate import Migrate
 # from app import app, db
 
 class Config:
-    SECRET_KEY = 'your_secret_key_here'
+    SECRET_KEY = '17287727877878'
     SQLALCHEMY_DATABASE_URI = 'sqlite:///newspaper.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOAD_FOLDER = 'static/pdfs'

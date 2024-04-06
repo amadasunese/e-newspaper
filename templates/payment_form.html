@@ -1,0 +1,12 @@
+<!-- templates/payment_form.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Confirm Subscription to {{ newspaper.title }}</h2>
+    <p>Subscription Amount: N{{ amount / 100 }}</p>
+    <form method="post" action="{{ url_for('main.process_payment') }}">
+        <button type="submit" class="btn btn-primary">Confirm Payment</button>
+    </form>
+</div>
+{% endblock %}

@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container">
     <h2>Subscribe</h2>
-    <form action="{{ url_for('main.subscribe_and_pay') }}" method="post">
+    <form action="{{ url_for('main.subscribe_and_pay', newspaper_id=newspaper.id) }}" method="post">
         <div class="form-group">
             <label for="edition">Select Edition</label>
             <select class="form-control" id="edition" name="edition">

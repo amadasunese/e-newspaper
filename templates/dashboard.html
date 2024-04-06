@@ -2,16 +2,41 @@
 
 {% block content %}
 <div class="container mt-5">
-  <h2>Dashboard</h2>
-  <p>Welcome to your dashboard. Here, you can manage your subscriptions, view latest issues, and more.</p>
+  <div class="row">
+    <!-- Main content -->
+    <div class="col-md-8">
+      <h2>Dashboard</h2>
+      <p>Welcome to your dashboard. Here, you can manage your subscriptions, view latest issues, and more.</p>
 
-  <div class="list-group">
-    <a href="{{ url_for('main.view_latest_issues') }}" class="list-group-item list-group-item-action">View Latest Issue</a>
-    {% if session.get('is_admin') %}
-    <a href="{{ url_for('main.upload_file') }}" class="list-group-item list-group-item-action">Upload New Issue</a>
-    <a href="{{ url_for('main.admin') }}" class="list-group-item list-group-item-action">Admin Panel</a>
-    {% endif %}
-    <a href="{{ url_for('main.manage_subscriptions') }}" class="list-group-item list-group-item-action">Manage Subscription</a>
+      <div class="list-group">
+        <a href="{{ url_for('main.newspapers') }}" class="list-group-item list-group-item-action">View Latest Issue</a>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('main.upload_file') }}" class="list-group-item list-group-item-action">Upload New Issue</a>
+        <a href="{{ url_for('main.admin') }}" class="list-group-item list-group-item-action">Admin Panel</a>
+        <a href="{{ url_for('main.manage_subscriptions') }}" class="list-group-item list-group-item-action">Manage Subscription</a>
+        {% endif %}
+        <!-- <a href="{{ url_for('main.manage_subscriptions') }}" class="list-group-item list-group-item-action">Manage Subscription</a> -->
+      </div>
+    </div>
+
+    <!-- Subscription thumbnails sidebar -->
+<div class="col-md-4">
+  <h3>Your Subscriptions</h3>
+  {% for subscription in user_subscriptions[::-1] %}
+    <div class="media mb-3">
+      <img src="{{ url_for('static', filename='pdfs/' + subscription.newspaper.thumbnail) }}" class="mr-3" alt="{{ subscription.newspaper.title }}" style="width: 64px; height: 64px;">
+      <div class="media-body">
+        <!-- Clickable title that links to the newspaper reading route -->
+        <h5 class="mt-0"><a href="{{ url_for('main.read_newspaper', newspaper_id=subscription.newspaper.id) }}">{{ subscription.newspaper.title }}</a></h5>
+        <!-- Alternatively, you can add a 'Read' button -->
+        <a href="{{ url_for('main.read_newspaper', newspaper_id=subscription.newspaper.id) }}" class="btn btn-sm btn-primary">Read</a>
+      </div>
+    </div>
+  {% else %}
+    <p>You have no subscriptions.</p>
+  {% endfor %}
+</div>
+
   </div>
 </div>
 {% endblock %}

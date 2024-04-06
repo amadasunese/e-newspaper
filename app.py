@@ -36,7 +36,6 @@ def create_app():
         return User.query.get(int(user_id))
 
 
-
     app.register_blueprint(main)
     
     with app.app_context():

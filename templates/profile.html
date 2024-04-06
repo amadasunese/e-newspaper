@@ -1,0 +1,50 @@
+<!-- templates/profile.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Sidebar with user profile details -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Profile Details</h5>
+                    <p class="card-text"><strong>User Name:</strong> {{ current_user.name }}</p>
+                    <p class="card-text"><strong>Email:</strong> {{ current_user.username }}</p>
+                    <!-- Add more fields as necessary -->
+                </div>
+            </div>
+        </div>
+        <!-- Main content area -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">User Profile</h2>
+                    <!-- Add additional content here, such as user information, settings, etc. -->
+                </div>
+            </div>
+            <!-- Subscription thumbnails -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h3 class="card-title">Your Subscriptions</h3>
+                    <div class="row">
+                        {% for subscription in user_subscriptions[::-1] %}
+                        <div class="col-md-4">
+                            <div class="media mb-3">
+                                <img src="{{ url_for('static', filename='pdfs/' + subscription.newspaper.thumbnail) }}" class="mr-3" alt="{{ subscription.newspaper.title }}" style="width: 64px; height: 64px;">
+                                <div class="media-body">
+                                    <h5 class="mt-0"><a href="{{ url_for('main.read_newspaper', newspaper_id=subscription.newspaper.id) }}">{{ subscription.newspaper.title }}</a></h5>
+                                    <a href="{{ url_for('main.read_newspaper', newspaper_id=subscription.newspaper.id) }}" class="btn btn-sm btn-primary">Read</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <p class="col-md-12">You have no subscriptions.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -4,12 +4,21 @@ from flask_login import UserMixin
 
 db = SQLAlchemy()
 
+# class User(db.Model, UserMixin):
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String, nullable=True)
+#     username= db.Column(db.String(80), unique=True, nullable=True)
+#     password = db.Column(db.String(120), nullable=False)
+#     is_admin = db.Column(db.Boolean, default=False)
+#     subscriptions = db.relationship('Subscription', backref='user', lazy=True)
+
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    username= db.Column(db.String(80), unique=True, nullable=False)  # Ensure email is not nullable
     password = db.Column(db.String(120), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
+    email = db.Column(db.String(80))  # Add the email column
     subscriptions = db.relationship('Subscription', backref='user', lazy=True)
 
 class Newspaper(db.Model):

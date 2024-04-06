@@ -17,7 +17,7 @@
                 <div class="caption">
                     <p>{{ newspaper.title }}</p>
                     <!-- Subscribe Button -->
-                    <a href="{{ url_for('main.process_payment') }}" class="btn btn-primary btn-sm">Subscribe</a>
+                    <a href="{{ url_for('main.newspapers', newspaper_id=newspaper.id) }}" class="btn btn-primary btn-sm">Subscribe</a>
                     <!-- Delete Action Form (Keep if necessary) -->
                     <form action="{{ url_for('main.delete_newspaper', newspaper_id=newspaper.id) }}" method="POST" style="display:inline;">
                         <input type="hidden" name="_method" value="DELETE">
