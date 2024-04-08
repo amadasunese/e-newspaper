@@ -9,16 +9,22 @@ import fitz  # PyMuPDF
 from datetime import datetime
 from flask_cors import CORS, cross_origin
 from flask import session
-from src.utils.decorators import check_is_subscribed, require_subscription, requires_subscription_to_newspaper
+from src.utils.decorators import logout_required, check_is_confirmed, check_is_subscribed, require_subscription, requires_subscription_to_newspaper
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from paystackapi.transaction import Transaction
 
 from paystackapi.paystack import Paystack
 from dotenv import load_dotenv
 from flask_wtf import FlaskForm
-from forms import LoginForm, SignUpForm, EditUserForm, UploadNewspaperForm
+from forms import LoginForm, SignUpForm, EditUserForm, UploadNewspaperForm, ContactForm 
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer
+import smtplib
 
 
+from src.accounts.token import generate_confirmation_token, confirm_token
+
+from src.utils.email import send_email, send_feedback
 
 main = Blueprint('main', __name__)
 
@@ -34,19 +40,19 @@ PAYSTACK_PUBLIC_KEY = os.environ.get('PAYSTACK_PUBLIC_KEY')
 paystack = Paystack(secret_key=PAYSTACK_SECRET_KEY)
 
 
+
+
 ###################
 # Error handling  #
 ###################
 @main.app_errorhandler(404)
 def page_not_found(e):
-    # Respond differently if it's an API call
     if request.path.startswith('/api/'):
         return jsonify(error='Not found'), 404
     return render_template('404.html'), 404
 
 @main.app_errorhandler(500)
 def internal_server_error(e):
-    # Respond differently if it's an API call
     if request.path.startswith('/api/'):
         return jsonify(error='Internal server error'), 500
     return render_template('500.html'), 500
@@ -61,8 +67,24 @@ def unauthorized(e):
 ######################################
 #         User management            #
 ######################################
+def generate_confirmation_token(email):
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    return serializer.dumps(email, salt=current_app.config['SECURITY_PASSWORD_SALT'])
+
+def confirm_token(token, expiration=3600):
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(
+            token,
+            salt=current_app.config['SECURITY_PASSWORD_SALT'],
+            max_age=expiration
+        )
+    except:
+        return False
+    return email
 
 @main.route('/register', methods=['GET', 'POST'])
+# @logout_required
 def register():
     if request.method == 'POST':
         name = request.form['name']
@@ -82,8 +104,15 @@ def register():
         try:
             db.session.add(new_user)
             db.session.commit()
+            token = generate_confirmation_token(email)
+            confirm_url = url_for("main.confirm_email", token=token, _external=True)
+            html = render_template("confirm_email.html", confirm_url=confirm_url)
+            subject = "Please confirm your email"
+            send_email(email, subject, html)
             flash('Registration successful! You can now log in.', 'success')
             return redirect(url_for('main.login'))
+            
+        
         except IntegrityError:
             db.session.rollback()
             flash('An error occurred during registration. Please try again.', 'danger')
@@ -91,11 +120,54 @@ def register():
     return render_template('register.html')
 
 
+
+@main.route('/confirm/<token>')
+# @login_required
+def confirm_email(token):
+    try:
+        email = confirm_token(token)
+    except:
+        flash('The confirmation link is invalid or has expired.', 'danger')
+    user = User.query.filter_by(email=email).first_or_404()
+    if user.is_confirmed:
+        flash('Account already confirmed. Please login.', 'success')
+    else:
+        user.is_confirmed = True
+        db.session.add(user)
+        db.session.commit()
+        flash('You have confirmed your account. Thanks!', 'success')
+    return redirect(url_for('main.index'))
+
+
+@main.route("/inactive")
+# @login_required
+def inactive():
+    if current_user.is_confirmed:
+        return redirect(url_for("core.newspapers"))
+    return render_template("inactive.html")
+
+
+@main.route("/resend")
+# @login_required
+def resend_confirmation():
+    if current_user.is_confirmed:
+        flash("Your account has already been confirmed.", "success")
+        return redirect(url_for("core.newspapers"))
+    token = generate_confirmation_token(current_user.email)
+    confirm_url = url_for("confirm_email", token=token, _external=True)
+    html = render_template("confirm_email.html", confirm_url=confirm_url)
+    subject = "Please confirm your email"
+    send_email(current_user.email, subject, html)
+    flash("A new confirmation email has been sent.", "success")
+    return redirect(url_for("inactive"))
+
+
 @main.route('/login', methods=['GET', 'POST'])
+# @logout_required
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
-    
+
     form = LoginForm()
     try:
         if form.validate_on_submit():
@@ -121,6 +193,7 @@ def login():
 
 
 @main.route('/logout')
+# @logout_required
 def logout():
     logout_user()
     flash('You have been logged out.')
@@ -128,7 +201,7 @@ def logout():
 
 
 @main.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def edit_user(user_id):
     if not current_user.is_admin:
         flash('Unauthorized access. Admins only.', 'danger')
@@ -148,7 +221,7 @@ def edit_user(user_id):
 
 
 @main.route('/delete_user/<int:user_id>', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def delete_user(user_id):
     if not current_user.is_admin:
         flash('Unauthorized access. Admins only.', 'danger')
@@ -166,7 +239,7 @@ def delete_user(user_id):
 
 
 @main.route('/profile')
-@login_required
+# @login_required
 def profile():
     user_subscriptions = Subscription.query.filter_by(user_id=current_user.id).all()
 
@@ -190,7 +263,7 @@ def allowed_file(filename):
 
 
 @main.route('/upload', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def upload_file():
     form = UploadNewspaperForm()
     
@@ -224,7 +297,7 @@ def upload_file():
     return render_template('upload.html', form=form)
 
 @main.route('/delete_newspaper/<int:newspaper_id>', methods=['POST'])
-@login_required
+# @login_required
 def delete_newspaper(newspaper_id):
     newspaper = Newspaper.query.get_or_404(newspaper_id)
     db.session.delete(newspaper)
@@ -238,7 +311,7 @@ def delete_newspaper(newspaper_id):
 ######################################
 
 @main.route('/admin')
-@login_required
+# @login_required
 def admin():
     if not current_user.is_admin:
         flash('Unauthorized access. Admins only.', 'danger')
@@ -249,9 +322,8 @@ def admin():
 
 
 @main.route('/dashboard')
-@login_required
+# @login_required
 def dashboard():
-    # Query the current user's subscriptions
     user_subscriptions = Subscription.query.filter_by(user_id=current_user.id).all()
     return render_template('dashboard.html', current_user=current_user, user_subscriptions=user_subscriptions)
 
@@ -261,24 +333,10 @@ def dashboard():
 ######################################
 
 @main.route('/subscribe_and_pay/<int:newspaper_id>')
-@login_required
+# @login_required
 def subscribe_and_pay(newspaper_id):
     newspapers = Newspaper.query.get_or_404(newspaper_id)
     return render_template('payment.html', newspaper=newspapers)
-
-
-# @main.route('/newspapers')
-# @login_required
-# def newspapers():
-#     newspapers = Newspaper.query.all()
-#     user_subscriptions = Subscription.query.filter_by(user_id=current_user.id).all()
-#     return render_template('newspapers.html', newspapers=newspapers, user_subscriptions=user_subscriptions)
-
-# @main.route('/newspapers')
-# def newspapers():
-#     newspapers = Newspaper.query.all()
-#     user_subscriptions = current_user.subscribed_newspapers.split(',') if current_user.is_authenticated else []
-#     return render_template('newspapers.html', newspapers=newspapers, user_subscriptions=user_subscriptions)
 
 
 @main.route('/newspapers')
@@ -286,21 +344,12 @@ def subscribe_and_pay(newspaper_id):
 def newspapers():
     newspapers = Newspaper.query.all()
     user_subscriptions = Subscription.query.filter_by(user_id=current_user.id).all()
-
-    # Extract newspaper IDs from subscriptions
-    subscribed_newspaper_ids = [sub.newspaper_id for sub in user_subscriptions]
-    print('this is the subscribed newspaper ids', subscribed_newspaper_ids)
-
-    #Query newspapers with the extracted IDs
-    subscribed_newspapers = Newspaper.query.filter(Newspaper.id.in_(subscribed_newspaper_ids)).all()
-    print('this is the subscribed newspaper', subscribed_newspapers)
-
-    return render_template('newspapers.html', newspapers=newspapers, subscribed_newspapers=subscribed_newspapers, user_subscriptions=user_subscriptions)
-
+    subscribed_newspapers = [sub.newspaper_id for sub in user_subscriptions]
+    return render_template('newspapers.html', newspapers=newspapers, subscribed_newspapers=subscribed_newspapers)
 
 
 @main.route('/read_newspaper/<int:newspaper_id>')
-@login_required
+# @login_required
 def read_newspaper(newspaper_id):
     newspaper = Newspaper.query.get_or_404(newspaper_id)
 
@@ -308,38 +357,8 @@ def read_newspaper(newspaper_id):
     return render_template('view_pdf.html', newspaper=newspaper, pdf_url=pdf_url)
 
 
-# @main.route('/payment/<int:newspaper_id>', methods=['GET', 'POST'])
-# @login_required
-# def payment(newspaper_id):
-#     newspaper = Newspaper.query.get_or_404(newspaper_id)
-#     amount = 10000
-#     email = current_user.email
-#     if request.method == 'POST':
-#         response = Transaction.initialize(amount=str(amount), email=email)
-#         print('this is the response', response)
-
-#         new_subscription = Subscription(
-#             user_id=current_user.id,
-#             newspaper_id=newspaper.id,
-#             active=True,
-#             subscription_date=datetime.utcnow(),
-#             payment_id=response['data'].get('reference')
-#         )
-#         db.session.add(new_subscription)
-#         db.session.commit()
-
-#         # Redirect the user to the payment authorization URL
-#         a_url = response['data']['authorization_url']
-#         return redirect(a_url)
-
-    #     flash('Your subscription has been successful!', 'success')
-    #     return redirect(url_for('main.dashboard'))
-
-    # return render_template('payment_form.html', newspaper=newspaper, amount=amount)
-
-
 @main.route('/payment/<int:newspaper_id>', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def payment(newspaper_id):
     newspaper = Newspaper.query.get_or_404(newspaper_id)
     amount = 10000
@@ -347,10 +366,6 @@ def payment(newspaper_id):
     
     response = Transaction.initialize(amount=str(amount), email=email)
     print('this is the response', response)
-    # if request.method == 'POST':
-    #     response = Transaction.initialize(amount=str(amount), email=email)
-    #     print('this is the response', response)
-
     new_subscription = Subscription(
         user_id=current_user.id,
         newspaper_id=newspaper.id,
@@ -361,54 +376,11 @@ def payment(newspaper_id):
     db.session.add(new_subscription)
     db.session.commit()
 
-        # Redirect the user to the payment authorization URL
     a_url = response['data']['authorization_url']
     return redirect(a_url)
     
     # Handle GET request by rendering the payment form template
     # return render_template('payment_form.html', newspaper=newspaper, amount=amount)
-
-
-# @main.route('/process_payment', methods=['GET', 'POST'])
-# @login_required
-# def process_payment():
-#     # Fetch newspaper_id from the query parameters
-#     newspaper_id = request.args.get('newspaper_id')
-#     if not newspaper_id:
-#         flash("No newspaper selected for subscription.", "error")
-#         return redirect(url_for('select_newspaper'))
-
-#     # Find the corresponding Newspaper instance in the database
-#     newspaper = Newspaper.query.get(newspaper_id)
-#     if not newspaper:
-#         flash("Selected newspaper does not exist.", "error")
-#         return redirect(url_for('select_newspaper'))
-
-#     amount = 1000
-  
-#     # Simulate initializing a payment transaction
-#     response = Transaction.initialize(amount=str(amount), email=current_user.email)
-#     if not response or 'data' not in response or 'reference' not in response['data']:
-#         flash("Failed to initialize payment.", "error")
-#         return redirect(url_for('select_newspaper'))
-
-#     # Create a new Subscription instance
-#     create_subscription_instance = Subscription(
-#         user_id=current_user.id,
-#         amount=amount,
-#         newspaper_id=newspaper.id,
-#         active=True,
-#         subscription_date=datetime.utcnow(),
-#         payment_id=response['data'].get('reference')
-#     )
-
-#     db.session.add(create_subscription_instance)
-#     db.session.commit()
-
-#     # Redirect the user to the payment authorization URL
-#     a_url = response['data']['authorization_url']
-#     return redirect(a_url)
-
 
 
 @main.route('/payment_verification', methods=['GET', 'POST'])
@@ -430,7 +402,7 @@ def payment_verification():
         if subscription:
             subscription.active = True
             db.session.commit()
-            # return redirect(url_for('core.dashboard'))      
+            # return redirect(url_for('main.dashboard'))      
     else:
         print(f"Payment verification failed with status: {status}")
     
@@ -459,34 +431,11 @@ def payment_verification():
 #     newspaper = Newspaper.query.get_or_404(newspaper_id)
 #     return render_template('subscription.html', newspaper=newspaper, user=current_user)
 
-# @main.route('/cancel_subscription/<int:id>', methods=['GET'])
-# @login_required
-# def cancel_subscription(id):
-#     subscription = Subscription.query.filter_by(id=id, user_id=current_user.id).first()
-#     if subscription:
-#         subscription.active = False
-#         db.session.commit()
-#         flash('Subscription canceled successfully.', 'success')
-#     else:
-#         flash('Subscription not found.', 'error')
-#     return redirect(url_for('main.manage_subscription'))
-
-
-# @main.route('/renew_subscription/<int:id>', methods=['GET'])
-# @login_required
-# def renew_subscription(id):
-#     subscription = Subscription.query.filter_by(id=id, user_id=current_user.id).first()
-#     if subscription:
-#         subscription.active = True
-#         db.session.commit()
-#         flash('Subscription renewed successfully.', 'success')
-#     else:
-#         flash('Subscription not found.', 'error')
-#     return redirect(url_for('views.manage_subscription'))
 
 
 @main.route('/manage_subscriptions')
 # @login_required
+# @check_is_confirmed
 def manage_subscriptions():
     user_id = session.get('user_id')
     if not user_id:
@@ -500,12 +449,39 @@ def manage_subscriptions():
 
 
 ####################
-# Users Management #
+# Contact routes #
 ####################
 
+@main.route('/contact', methods=['GET', 'POST'])
+# @login_required
+def contact():
+    form = ContactForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        email = form.email.data
+        message = form.message.data
+        
+        template = f"""
+            <p><strong>Name:</strong> {name}</p>
+            <p><strong>Email:</strong> {email}</p>
+            <p><strong>Message:</strong> {message}</p>
+        """
+
+        try:
+            send_feedback(to=current_app.config["MAIL_DEFAULT_SENDER"], subject="Contact Form Submission", template=template)
+            flash('Your message has been sent. Thank you!', 'success')
+            return redirect(url_for('main.contact'))
+        except Exception as e:
+            flash('An error occurred while sending the feedback.', 'danger')
+            current_app.logger.error(f"Error sending feedback: {e}")
+
+    return render_template('contact.html', form=form)
 
 
 
+@main.route('/advertising')
+def advertising():
+    return render_template('advertising.html')
 
 
 

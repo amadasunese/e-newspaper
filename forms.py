@@ -26,11 +26,28 @@ class EditUserForm(FlaskForm):
     username = StringField('Email', validators=[DataRequired(), Email()])
     submit = SubmitField('Update')
 
-
-
-
 class UploadNewspaperForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     pdf_file = FileField('PDF File', validators=[DataRequired(), FileAllowed(['pdf'], 'PDFs only!')])
     publication_date = DateField('Publication Date', format='%Y-%m-%d', validators=[DataRequired()])
     submit = SubmitField('Upload')
+
+
+
+class ContactForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    message = TextAreaField('Message', validators=[DataRequired()])
+    submit = SubmitField('Send')
+
+class ResetPasswordRequestForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('New Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm New Password',
+                                     validators=[DataRequired(),
+                                                 EqualTo('password')])
+    submit = SubmitField('Reset Password')

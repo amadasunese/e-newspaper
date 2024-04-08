@@ -5,23 +5,24 @@ from config import Config
 from flask_login import LoginManager, current_user, login_user
 from flask_migrate import Migrate
 from flask_cors import CORS
+from flask_mail import Mail, Message
+from itsdangerous import URLSafeTimedSerializer
 
+mail = Mail()
 
-
-def create_app():
+def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(Config)
+    mail.init_app(app)
     cors = CORS(app)
     cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
     db.init_app(app)
 
     # Configure CORS
-    cors_options = {
-        "origins": ["http://localhost:5000"],  # Allowed origins
-        "supports_credentials": True  # Allows cookies and credentials to be sent along with requests
-    }
-
-    CORS(app, **cors_options)
+    # cors_options = {
+    #     "origins": ["http://localhost:5000"],
+    #     "supports_credentials": True
+    # }
 
     migrate = Migrate(app, db)
     

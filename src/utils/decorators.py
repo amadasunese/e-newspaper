@@ -11,7 +11,7 @@ def logout_required(func):
     def decorated_function(*args, **kwargs):
         if current_user.is_authenticated:
             flash("You are already authenticated.", "info")
-            return redirect(url_for("core.home"))
+            return redirect(url_for("core.newspapers"))
         return func(*args, **kwargs)
 
     return decorated_function
@@ -21,7 +21,7 @@ def check_is_confirmed(func):
     def decorated_function(*args, **kwargs):
         if current_user.is_confirmed is False:
             flash("Please confirm your account!", "warning")
-            return redirect(url_for("accounts.inactive"))
+            return redirect(url_for("main.inactive"))
         return func(*args, **kwargs)
 
     return decorated_function

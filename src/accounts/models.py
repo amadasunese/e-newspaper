@@ -19,6 +19,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(120), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     email = db.Column(db.String(80))  # Add the email column
+    # is_confirmed = db.Column(db.Boolean, nullable=True, default=False)
     subscriptions = db.relationship('Subscription', backref='user', lazy=True)
 
 class Newspaper(db.Model):
