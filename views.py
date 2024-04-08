@@ -84,7 +84,7 @@ def confirm_token(token, expiration=3600):
     return email
 
 @main.route('/register', methods=['GET', 'POST'])
-# @logout_required
+@logout_required
 def register():
     if request.method == 'POST':
         name = request.form['name']
@@ -122,7 +122,7 @@ def register():
 
 
 @main.route('/confirm/<token>')
-# @login_required
+@login_required
 def confirm_email(token):
     try:
         email = confirm_token(token)
@@ -140,7 +140,7 @@ def confirm_email(token):
 
 
 @main.route("/inactive")
-# @login_required
+@login_required
 def inactive():
     if current_user.is_confirmed:
         return redirect(url_for("core.newspapers"))
@@ -148,7 +148,7 @@ def inactive():
 
 
 @main.route("/resend")
-# @login_required
+@login_required
 def resend_confirmation():
     if current_user.is_confirmed:
         flash("Your account has already been confirmed.", "success")
@@ -163,7 +163,7 @@ def resend_confirmation():
 
 
 @main.route('/login', methods=['GET', 'POST'])
-# @logout_required
+@logout_required
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
@@ -341,6 +341,7 @@ def subscribe_and_pay(newspaper_id):
 
 @main.route('/newspapers')
 @login_required
+@check_is_confirmed
 def newspapers():
     newspapers = Newspaper.query.all()
     user_subscriptions = Subscription.query.filter_by(user_id=current_user.id).all()

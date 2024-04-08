@@ -11,7 +11,7 @@ def logout_required(func):
     def decorated_function(*args, **kwargs):
         if current_user.is_authenticated:
             flash("You are already authenticated.", "info")
-            return redirect(url_for("core.newspapers"))
+            return redirect(url_for("main.newspapers"))
         return func(*args, **kwargs)
 
     return decorated_function
