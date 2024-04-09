@@ -28,15 +28,79 @@ from config import send_email, send_feedback # send_password_reset_email
 
 main = Blueprint('main', __name__)
 
-# @main.route('/')
-# def index():
-#     newspapers = Newspaper.query.all()
-#     return render_template('newspapers.html', newspapers=newspapers)
-
 @main.route('/')
 def index():
-    # newspapers = Newspaper.query.all()
-    return render_template('landing_page.html')
+    newspapers = Newspaper.query.all()
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+    return render_template('login.html', newspapers=newspapers, form=form)
+
+# @main.route('/')
+# def index():
+#     # newspapers = Newspaper.query.all()
+#     return render_template('landing_page.html')
+
+
+# @main.route('/')
+# def index():
+#     if current_user.is_authenticated:
+#         return redirect(url_for('main.dashboard'))
+
+#     form = LoginForm()
+#     try:
+#         if form.validate_on_submit():
+#             user = User.query.filter_by(username=form.username.data).first()
+#             if user and check_password_hash(user.password, form.password.data):
+#                 login_user(user)
+#                 next_page = request.args.get('next')
+#                 if user.is_admin:
+#                     session['is_admin'] = True
+#                     flash('Admin login successful', 'success')
+#                     return redirect(next_page or url_for('main.dashboard'))
+#                 else:
+#                     session['is_admin'] = False
+#                     flash('Login successful', 'success')
+#                     return redirect(next_page or url_for('main.newspapers'))
+#             else:
+#                 flash('Login Unsuccessful. Please check email and password', 'danger')
+#         return render_template('landing_page.html', title='Login', form=form)
+#     except Exception as e:
+#         current_app.logger.error(f"An error occurred during login: {e}")
+#         flash('An unexpected error occurred. Please try again.', 'danger')
+#         return redirect(url_for('main.index'))
+    
+  #  return render_template('landing_page.html')
+
+# @main.route('/', methods=['GET', 'POST'])
+# def index():
+#     if current_user.is_authenticated:
+#         return redirect(url_for('main.dashboard'))
+
+#     form = LoginForm()
+#     try:
+#         if form.validate_on_submit():
+#             user = User.query.filter_by(username=form.username.data).first()
+#             if user and check_password_hash(user.password, form.password.data):
+#                 login_user(user)
+#                 next_page = request.args.get('next')
+#                 if user.is_admin:
+#                     session['is_admin'] = True
+#                     flash('Admin login successful', 'success')
+#                     return redirect(next_page or url_for('main.dashboard'))
+#                 else:
+#                     session['is_admin'] = False
+#                     flash('Login successful', 'success')
+#                     return redirect(next_page or url_for('main.newspapers'))
+#             else:
+#                 flash('Login Unsuccessful. Please check email and password', 'danger')
+#         return render_template('index.html', title='Login', form=form)
+#     except Exception as e:
+#         current_app.logger.error(f"An error occurred during login: {e}")
+#         flash('An unexpected error occurred. Please try again.', 'danger')
+#         # return render_template('ind.html')
+#         return redirect(url_for('main.index'))
+
 
 load_dotenv()
 PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY')
@@ -323,7 +387,7 @@ def delete_user(user_id):
 
 
 @main.route('/profile')
-# @login_required
+@login_required
 def profile():
     user_subscriptions = Subscription.query.filter_by(user_id=current_user.id).all()
 
@@ -417,7 +481,7 @@ def dashboard():
 ######################################
 
 @main.route('/subscribe_and_pay/<int:newspaper_id>')
-# @login_required
+@login_required
 def subscribe_and_pay(newspaper_id):
     newspapers = Newspaper.query.get_or_404(newspaper_id)
     return render_template('payment.html', newspaper=newspapers)
@@ -434,7 +498,7 @@ def newspapers():
 
 
 @main.route('/read_newspaper/<int:newspaper_id>')
-# @login_required
+@login_required
 def read_newspaper(newspaper_id):
     newspaper = Newspaper.query.get_or_404(newspaper_id)
 
@@ -443,7 +507,7 @@ def read_newspaper(newspaper_id):
 
 
 @main.route('/payment/<int:newspaper_id>', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def payment(newspaper_id):
     newspaper = Newspaper.query.get_or_404(newspaper_id)
     amount = 10000

@@ -19,8 +19,6 @@ body {
     flex-direction: column;
 }
 
-
-
 .content-wrapper {
     flex: 1;
 }
@@ -46,24 +44,92 @@ body {
 
 /* landing page */
 
-body, html {
+/* body, html {
     height: 100%;
     margin: 0;
+} */
+
+
+
+
+/* register page */
+
+.register-container {
+    height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.register-box {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-success {
+    width: auto;
+}
+
+
+
+/* login page */
+
+/* .login-container {
+    height: 100vh;
+    background-color: #f5f5f5;
+} */
+
+.login-box {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    width: 350px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .login-container {
     background: url('/static/images/thumbnail.png') no-repeat center center fixed; 
-    background-size: cover;
+    background-size: 50%;
     height: 100%;
 }
 
-.login-box {
+/* .login-box {
     background: white;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 400px;
+} */
+
+.shadow {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
 }
+
+.text-center {
+    text-align: center;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.d-grid {
+    display: grid;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+
+
+
 
 .login-header {
     margin-bottom: 20px;
@@ -84,35 +150,30 @@ body, html {
 }
 
 .btn-primary {
-    background-color: #ff6a00; /* Custom orange color */
+    background-color: #ff6a00;
     border: none;
 }
 
 .btn-primary:hover {
-    background-color: #e65c00; /* Darker shade for hover state */
+    background-color: #e65c00;
 }
 
 
-/* register page */
+/* reset password page */
 
-
-.register-container {
-    height: 100vh; /* Use 100% of the viewport height */
-    background-color: #f5f5f5; /* A light background color */
+.reset-password-container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.register-box {
-    background: #fff; /* White background for the form */
+.reset-password-box {
+    background: #fff;
     padding: 2rem;
-    border-radius: 0.5rem;
-    width: 400px; /* Fixed width for the form box */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* A subtle shadow */
-    /* Add any additional styling you want for the box */
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,.1);
+    width: 100%;
+    max-width: 400px; 
 }
-
-.btn-success {
-    width: 100%; /* Make the button extend to the full width of the form */
-}
-
-
 

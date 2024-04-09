@@ -12,7 +12,7 @@
     <div class="row">
         {% for newspaper in newspapers[::-1] %}
         <div class="col-md-3">
-            <div class="card" style="width: 15rem;">
+            <div class="card" style="width: 17rem;">
                 <img src="{{ url_for('static', filename='pdfs/' + (newspaper.thumbnail or 'default.jpg')) }}" class="card-img-top" alt="{{ newspaper.title }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ newspaper.title }}</h5>

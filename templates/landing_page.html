@@ -14,18 +14,19 @@
                 <h2>Login</h2>
                 <p>Don't have an account? <a href="{{ url_for('main.register') }}">Sign up</a></p>
             </div>
-            <form class="login-form">
-                <div class="form-group">
-                    <label for="email">Email address</label>
-                    <input type="email" class="form-control" id="email" placeholder="Enter email">
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="Password">
-                </div>
-                <a href="{{ url_for('main.reset_password_request') }}" class="forgot-password">Forgot password?</a>
-                <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-            </form>
+            <!-- <form class="login-form"> -->
+                <form class="login-form" action="{{ url_for('main.index') }}" method="POST">
+                    <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                    </div>
+                    <a href="{{ url_for('main.reset_password_request') }}" class="forgot-password">Forgot password?</a>
+                    <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                </form>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

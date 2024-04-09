@@ -1,0 +1,30 @@
+body, html {
+    height: 100%;
+    margin: 0;
+}
+.welcome-container {
+    display: flex;
+    height: 100vh;
+}
+.image-side {
+    flex: 1;
+    background: url('/static/images/reading_observer.jpeg') no-repeat center center;
+    background-size: cover;
+}
+.login-side {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.login-box {
+    width: 400px;
+    padding: 2rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: white;
+    border-radius: 8px;
+}
+.btn-block {
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
