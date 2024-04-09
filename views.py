@@ -16,7 +16,7 @@ from paystackapi.transaction import Transaction
 from paystackapi.paystack import Paystack
 from dotenv import load_dotenv
 from flask_wtf import FlaskForm
-from forms import LoginForm, SignUpForm, EditUserForm, UploadNewspaperForm, ContactForm 
+from forms import LoginForm, SignUpForm, EditUserForm, UploadNewspaperForm, ContactForm, ResetPasswordForm, ResetPasswordRequestForm 
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 import smtplib
@@ -24,15 +24,19 @@ import smtplib
 
 from src.accounts.token import generate_confirmation_token, confirm_token
 
-from src.utils.email import send_email, send_feedback
+from config import send_email, send_feedback # send_password_reset_email
 
 main = Blueprint('main', __name__)
 
+# @main.route('/')
+# def index():
+#     newspapers = Newspaper.query.all()
+#     return render_template('newspapers.html', newspapers=newspapers)
+
 @main.route('/')
 def index():
-    newspapers = Newspaper.query.all()
-    return render_template('newspapers.html', newspapers=newspapers)
-
+    # newspapers = Newspaper.query.all()
+    return render_template('landing_page.html')
 
 load_dotenv()
 PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY')
@@ -67,21 +71,21 @@ def unauthorized(e):
 ######################################
 #         User management            #
 ######################################
-def generate_confirmation_token(email):
-    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-    return serializer.dumps(email, salt=current_app.config['SECURITY_PASSWORD_SALT'])
+# def generate_confirmation_token(email):
+#     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+#     return serializer.dumps(email, salt=current_app.config['SECURITY_PASSWORD_SALT'])
 
-def confirm_token(token, expiration=3600):
-    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-    try:
-        email = serializer.loads(
-            token,
-            salt=current_app.config['SECURITY_PASSWORD_SALT'],
-            max_age=expiration
-        )
-    except:
-        return False
-    return email
+# def confirm_token(token, expiration=3600):
+#     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+#     try:
+#         email = serializer.loads(
+#             token,
+#             salt=current_app.config['SECURITY_PASSWORD_SALT'],
+#             max_age=expiration
+#         )
+#     except:
+#         return False
+#     return email
 
 @main.route('/register', methods=['GET', 'POST'])
 @logout_required
@@ -190,6 +194,86 @@ def login():
         current_app.logger.error(f"An error occurred during login: {e}")
         flash('An unexpected error occurred. Please try again.', 'danger')
         return redirect(url_for('main.login'))
+
+
+
+# s = URLSafeTimedSerializer #(current_app.config['SECRET_KEY'])
+
+# def send_password_reset_email(user):
+#     """Password reset email
+#     """
+#     token = s.dumps(user.email, salt='password-reset-salt')
+#     msg = Message('Reset Your Password', sender=current_app.config["MAIL_DEFAULT_SENDER"],
+#                   recipients=[user.email])
+#     msg.body = (
+#         f"To reset your password, visit the following link: "
+#         f"{url_for('main.reset_password', token=token, _external=True)}"
+#     )
+#     mail.send(msg)
+
+mail = Mail()
+def send_password_reset_email(user):
+
+    # Initialize the serializer with the app's secret key
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+
+    # Generate a token
+    token = serializer.dumps(user.email, salt='password-reset-salt')
+    # # Generate a token
+    # token = s.dumps(user.email, salt='password-reset-salt')
+
+    # Create the password reset email
+    msg = Message('Reset Your Password', 
+                  sender=current_app.config["MAIL_DEFAULT_SENDER"], 
+                  recipients=[user.email])
+
+    # Email body with the link to reset password
+    msg.body = (
+        "To reset your password, visit the following link: "
+        f"{url_for('main.reset_password', token=token, _external=True)}"
+    )
+    
+    # Send the email
+    mail.send(msg)
+
+@main.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    """Process password reset request
+    """
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+        flash('Password reset email sent if your email is in our system.')
+        return redirect(url_for('main.login'))
+    return render_template('reset_password_request.html',
+                           title='Reset Password', form=form)
+
+
+@main.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = s.loads(token, salt='password-reset-salt', max_age=3600)
+    except Exception:
+        flash('The password reset link is invalid or has expired.')
+        return redirect(url_for('main.reset_password_request'))
+
+    user = User.query.filter_by(email=email).first()
+    if user is None:
+        flash('Invalid user.')
+        return redirect(url_for('main.reset_password_request'))
+
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        # Update user's password
+        user.password_hash = generate_password_hash(form.password.data)
+        db.session.commit()
+        flash('Your password has been reset.')
+        return redirect(url_for('main.login'))
+    return render_template('reset_password.html',
+                           title='Reset Password', form=form, token=token)
+
 
 
 @main.route('/logout')
@@ -303,7 +387,7 @@ def delete_newspaper(newspaper_id):
     db.session.delete(newspaper)
     db.session.commit()
     flash('Newspaper deleted successfully.', 'success')
-    return redirect(url_for('main.view_latest_issues'))
+    return redirect(url_for('main.newspapers'))
 
 
 ######################################

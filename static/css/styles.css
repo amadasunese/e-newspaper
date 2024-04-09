@@ -42,3 +42,77 @@ body {
     align-items: center;
     font-size: 20px;
 }
+
+
+/* landing page */
+
+body, html {
+    height: 100%;
+    margin: 0;
+}
+
+.login-container {
+    background: url('/static/images/thumbnail.png') no-repeat center center fixed; 
+    background-size: cover;
+    height: 100%;
+}
+
+.login-box {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 400px;
+}
+
+.login-header {
+    margin-bottom: 20px;
+}
+
+.login-header h2 {
+    margin-bottom: 10px;
+}
+
+.login-header p {
+    color: gray;
+}
+
+.forgot-password {
+    display: block;
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.btn-primary {
+    background-color: #ff6a00; /* Custom orange color */
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #e65c00; /* Darker shade for hover state */
+}
+
+
+/* register page */
+
+
+.register-container {
+    height: 100vh; /* Use 100% of the viewport height */
+    background-color: #f5f5f5; /* A light background color */
+}
+
+.register-box {
+    background: #fff; /* White background for the form */
+    padding: 2rem;
+    border-radius: 0.5rem;
+    width: 400px; /* Fixed width for the form box */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* A subtle shadow */
+    /* Add any additional styling you want for the box */
+}
+
+.btn-success {
+    width: 100%; /* Make the button extend to the full width of the form */
+}
+
+
+

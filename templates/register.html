@@ -1,24 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Register</h1>
-<form method="post" action="{{ url_for('main.register') }}">
-    <div class="form-group">
-        <label for="name">Name</label>
-        <input type="text" class="form-control" id="name" name="name" required>
+<div class="register-container d-flex align-items-center justify-content-center">
+    <div class="register-box">
+        <h1>Register</h1>
+        <form method="post" action="{{ url_for('main.register') }}">
+            <!-- Form fields -->
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="username">username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Your Email</label>
+                <input type="text" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <!-- Other form groups -->
+            <button type="submit" class="btn btn-success">Register</button>
+        </form>
     </div>
-    <div class="form-group">
-        <label for="username">username</label>
-        <input type="text" class="form-control" id="username" name="username" required>
-    </div>
-    <div class="form-group">
-        <label for="email">Your Email</label>
-        <input type="text" class="form-control" id="email" name="email" required>
-    </div>
-    <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" class="form-control" id="password" name="password" required>
-    </div>
-    <button type="register" class="btn btn-success">Register</button>
-</form>
+</div>
 {% endblock %}
+
+
