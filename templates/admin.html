@@ -11,13 +11,11 @@
         </tr>
     </thead>
     <tbody>
-        {% for user in current_users %} <!-- Assuming 'current_users' is a list of all user objects passed to the template -->
+        {% for user in current_users %}
         <tr>
             <th scope="row">{{ loop.index }}</th>
-            <td>{{ user.username }}</td> <!-- Use 'user.username' to refer to the username of each user in the loop -->
+            <td>{{ user.username }}</td>
             <td>
-                <!-- Links to edit and delete actions need to be implemented properly -->
-                <!-- Example: Assuming you have routes defined for editing and deleting users -->
                 <a href="{{ url_for('main.edit_user', user_id=user.id) }}" class="btn btn-info">Edit</a>
                 <a href="{{ url_for('main.delete_user', user_id=user.id) }}" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
             </td>

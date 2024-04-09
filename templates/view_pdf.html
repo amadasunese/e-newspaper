@@ -15,28 +15,17 @@
 
     <!-- Include PDF.js library -->
     <script src="//mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script>
-    <!--<script src="https://mozilla.github.io/pdf.js/build/pdf.mjs"></script>-->
-
-    <!-- <script src="//mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script> -->
-
-    <!-- <script src="{{ url_for('static', filename='js/pdf.js/pdf.mjs') }}"></script> -->
-    <!-- <script src="{{ url_for('static', filename='js/pdf.mjs') }}"></script> -->
-
 
     <!-- Custom script to load and navigate PDF -->
     <script type="module">
         // Configuration for PDF.js
-        // import pdfjsLib from 'https://mozilla.github.io/pdf.js/build/pdf.mjs'
-
-        // pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.mjs';
         pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.mjs';
-        // pdfjsLib.GlobalWorkerOptions.workerSrc = "{{ url_for('static', filename='js/pdf.js/pdf.worker.mjs') }}";
 
         let pdfDoc = null,
             pageNum = 1,
             pageRendering = false,
             pageNumPending = null,
-            scale = 0.8, // Adjust scale as needed
+            scale = 0.8,
             canvas = document.createElement('canvas'),
             ctx = canvas.getContext('2d');
 
@@ -111,17 +100,6 @@
         }).catch(function(error) {
             console.error('Error loading PDF: ', error.message);
         });
-
-        // Load the PDF document
-        // pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
-        //     pdfDoc = pdfDoc_;
-        //     document.getElementById('page-count').textContent = pdfDoc.numPages;
-
-        //     // Initial/first page rendering
-        //     renderPage(pageNum);
-        // }).catch(function(error) {
-        //     console.error('Error loading PDF: ' + error.message);
-        // });
 
         // Hook up page navigation handlers
         document.getElementById('prev-page').addEventListener('click', onPrevPage);

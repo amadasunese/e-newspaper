@@ -36,78 +36,10 @@ def index():
         user = User.query.filter_by(username=form.username.data).first()
     return render_template('login.html', newspapers=newspapers, form=form)
 
-# @main.route('/')
-# def index():
-#     # newspapers = Newspaper.query.all()
-#     return render_template('landing_page.html')
-
-
-# @main.route('/')
-# def index():
-#     if current_user.is_authenticated:
-#         return redirect(url_for('main.dashboard'))
-
-#     form = LoginForm()
-#     try:
-#         if form.validate_on_submit():
-#             user = User.query.filter_by(username=form.username.data).first()
-#             if user and check_password_hash(user.password, form.password.data):
-#                 login_user(user)
-#                 next_page = request.args.get('next')
-#                 if user.is_admin:
-#                     session['is_admin'] = True
-#                     flash('Admin login successful', 'success')
-#                     return redirect(next_page or url_for('main.dashboard'))
-#                 else:
-#                     session['is_admin'] = False
-#                     flash('Login successful', 'success')
-#                     return redirect(next_page or url_for('main.newspapers'))
-#             else:
-#                 flash('Login Unsuccessful. Please check email and password', 'danger')
-#         return render_template('landing_page.html', title='Login', form=form)
-#     except Exception as e:
-#         current_app.logger.error(f"An error occurred during login: {e}")
-#         flash('An unexpected error occurred. Please try again.', 'danger')
-#         return redirect(url_for('main.index'))
-    
-  #  return render_template('landing_page.html')
-
-# @main.route('/', methods=['GET', 'POST'])
-# def index():
-#     if current_user.is_authenticated:
-#         return redirect(url_for('main.dashboard'))
-
-#     form = LoginForm()
-#     try:
-#         if form.validate_on_submit():
-#             user = User.query.filter_by(username=form.username.data).first()
-#             if user and check_password_hash(user.password, form.password.data):
-#                 login_user(user)
-#                 next_page = request.args.get('next')
-#                 if user.is_admin:
-#                     session['is_admin'] = True
-#                     flash('Admin login successful', 'success')
-#                     return redirect(next_page or url_for('main.dashboard'))
-#                 else:
-#                     session['is_admin'] = False
-#                     flash('Login successful', 'success')
-#                     return redirect(next_page or url_for('main.newspapers'))
-#             else:
-#                 flash('Login Unsuccessful. Please check email and password', 'danger')
-#         return render_template('index.html', title='Login', form=form)
-#     except Exception as e:
-#         current_app.logger.error(f"An error occurred during login: {e}")
-#         flash('An unexpected error occurred. Please try again.', 'danger')
-#         # return render_template('ind.html')
-#         return redirect(url_for('main.index'))
-
-
 load_dotenv()
 PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY')
 PAYSTACK_PUBLIC_KEY = os.environ.get('PAYSTACK_PUBLIC_KEY')
 paystack = Paystack(secret_key=PAYSTACK_SECRET_KEY)
-
-
 
 
 ###################
@@ -135,21 +67,6 @@ def unauthorized(e):
 ######################################
 #         User management            #
 ######################################
-# def generate_confirmation_token(email):
-#     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-#     return serializer.dumps(email, salt=current_app.config['SECURITY_PASSWORD_SALT'])
-
-# def confirm_token(token, expiration=3600):
-#     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-#     try:
-#         email = serializer.loads(
-#             token,
-#             salt=current_app.config['SECURITY_PASSWORD_SALT'],
-#             max_age=expiration
-#         )
-#     except:
-#         return False
-#     return email
 
 @main.route('/register', methods=['GET', 'POST'])
 @logout_required
@@ -260,38 +177,21 @@ def login():
         return redirect(url_for('main.login'))
 
 
-
-# s = URLSafeTimedSerializer #(current_app.config['SECRET_KEY'])
-
-# def send_password_reset_email(user):
-#     """Password reset email
-#     """
-#     token = s.dumps(user.email, salt='password-reset-salt')
-#     msg = Message('Reset Your Password', sender=current_app.config["MAIL_DEFAULT_SENDER"],
-#                   recipients=[user.email])
-#     msg.body = (
-#         f"To reset your password, visit the following link: "
-#         f"{url_for('main.reset_password', token=token, _external=True)}"
-#     )
-#     mail.send(msg)
-
 mail = Mail()
 def send_password_reset_email(user):
 
-    # Initialize the serializer with the app's secret key
+    """Initialize the serializer with the app's secret key"""
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
 
-    # Generate a token
+    """Generate a token"""
     token = serializer.dumps(user.email, salt='password-reset-salt')
-    # # Generate a token
-    # token = s.dumps(user.email, salt='password-reset-salt')
 
-    # Create the password reset email
+    """Create the password reset email"""
     msg = Message('Reset Your Password', 
                   sender=current_app.config["MAIL_DEFAULT_SENDER"], 
                   recipients=[user.email])
 
-    # Email body with the link to reset password
+    """Email body with the link to reset password"""
     msg.body = (
         "To reset your password, visit the following link: "
         f"{url_for('main.reset_password', token=token, _external=True)}"
@@ -330,7 +230,7 @@ def reset_password(token):
 
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        # Update user's password
+        """Update user's password"""
         user.password_hash = generate_password_hash(form.password.data)
         db.session.commit()
         flash('Your password has been reset.')
@@ -594,9 +494,6 @@ def manage_subscriptions():
     return render_template('manage_subscription.html', subscriptions=subscriptions)
 
 
-
-
-
 ####################
 # Contact routes #
 ####################
@@ -626,13 +523,6 @@ def contact():
 
     return render_template('contact.html', form=form)
 
-
-
 @main.route('/advertising')
 def advertising():
     return render_template('advertising.html')
-
-
-
-
-

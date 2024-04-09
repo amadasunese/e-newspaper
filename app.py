@@ -2,11 +2,10 @@ from flask import Flask
 from src.accounts.models import db, User
 from views import main
 from config import Config
-from flask_login import LoginManager, current_user, login_user
+from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_cors import CORS
-from flask_mail import Mail, Message
-from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Mail
 
 mail = Mail()
 
@@ -18,11 +17,7 @@ def create_app(config_class=Config):
     cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
     db.init_app(app)
 
-    # Configure CORS
-    # cors_options = {
-    #     "origins": ["http://localhost:5000"],
-    #     "supports_credentials": True
-    # }
+
 
     migrate = Migrate(app, db)
     
