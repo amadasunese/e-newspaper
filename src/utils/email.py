@@ -44,8 +44,8 @@ def send_password_reset_email(user):
     token = s.dumps(user.email, salt='password-reset-salt')
 
     # Create the password reset email
-    msg = Message('Reset Your Password', 
-                  sender=config["MAIL_DEFAULT_SENDER"], 
+    msg = Message('Reset Your Password',
+                  sender=app.config["MAIL_DEFAULT_SENDER"],
                   recipients=[user.email])
 
     # Email body with the link to reset password
@@ -53,6 +53,6 @@ def send_password_reset_email(user):
         "To reset your password, visit the following link: "
         f"{url_for('main.reset_password', token=token, _external=True)}"
     )
-    
+
     # Send the email
     mail.send(msg)

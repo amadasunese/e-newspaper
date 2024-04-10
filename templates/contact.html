@@ -1,23 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Contact Us</h2>
-    <form method="POST" action="{{ url_for('main.contact') }}">
-        {{ form.hidden_tag() }}
-        <div class="form-group">
-            {{ form.name.label }}
-            {{ form.name(class='form-control') }}
-        </div>
-        <div class="form-group">
-            {{ form.email.label }}
-            {{ form.email(class='form-control') }}
-        </div>
-        <div class="form-group">
-            {{ form.message.label }}
-            {{ form.message(class='form-control') }}
-        </div>
-        {{ form.submit(class='btn btn-primary') }}
-    </form>
+<div class="contact-container d-flex align-items-center justify-content-center">
+    <div class="contact-box shadow">
+        <h2 class="mb-4 text-center">Contact Us</h2>
+        <form method="POST" action="{{ url_for('main.contact') }}">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.name.label(class="form-label") }}
+                {{ form.name(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.message.label(class="form-label") }}
+                {{ form.message(class="form-control") }}
+            </div>
+            <div class="text-center">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

@@ -20,7 +20,7 @@ def create_app(config_class=Config):
 
 
     migrate = Migrate(app, db)
-    
+
 
     db.init_app(app)
     login_manager = LoginManager(app)
@@ -33,10 +33,10 @@ def create_app(config_class=Config):
 
 
     app.register_blueprint(main)
-    
+
     with app.app_context():
         db.create_all()
-    
+
     return app
 
 if __name__ == '__main__':

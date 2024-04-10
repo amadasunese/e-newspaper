@@ -13,7 +13,7 @@ class SignUpForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Register')
 
-    
+
 class LoginForm(FlaskForm):
     username = EmailField("Email", validators=[DataRequired(), Email()])
     password = PasswordField("Password", validators=[DataRequired()])
@@ -23,7 +23,9 @@ class LoginForm(FlaskForm):
 
 class EditUserForm(FlaskForm):
     name= StringField('Username', validators=[DataRequired()])
-    username = StringField('Email', validators=[DataRequired(), Email()])
+    # username = StringField('Email', validators=[DataRequired(), Email()])
+    username = StringField('Username', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
     submit = SubmitField('Update')
 
 class UploadNewspaperForm(FlaskForm):

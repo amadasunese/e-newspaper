@@ -2,6 +2,9 @@ import os
 from flask_migrate import Migrate
 from decouple import config
 from flask_mail import Mail, Message
+from flask import current_app
+from flask import url_for
+from itsdangerous import URLSafeTimedSerializer
 
 class Config:
     SECRET_KEY = '17287727877878'
@@ -35,7 +38,7 @@ def send_email(to, subject, template):
         subject,
         recipients=[to],
         html=template,
-        sender=config["MAIL_DEFAULT_SENDER"],
+        sender=current_app.config["MAIL_DEFAULT_SENDER"],
     )
     mail.send(msg)
 
@@ -44,6 +47,28 @@ def send_feedback(to, subject, template):
         subject,
         recipients=[to],
         html=template,
-        sender=config["MAIL_DEFAULT_SENDER"],
+        sender=current_app.config["MAIL_DEFAULT_SENDER"],
     )
+    mail.send(msg)
+
+def send_password_reset_email(user):
+
+    """Initialize the serializer with the app's secret key"""
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+
+    """Generate a token"""
+    token = serializer.dumps(user.email, salt='password-reset-salt')
+
+    """Create the password reset email"""
+    msg = Message('Reset Your Password',
+                  sender=current_app.config["MAIL_DEFAULT_SENDER"],
+                  recipients=[user.email])
+
+    """Email body with the link to reset password"""
+    msg.body = (
+        "To reset your password, visit the following link: "
+        f"{url_for('main.reset_password', token=token, _external=True)}"
+    )
+
+    # Send the email
     mail.send(msg)

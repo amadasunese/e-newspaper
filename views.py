@@ -16,7 +16,7 @@ from paystackapi.transaction import Transaction
 from paystackapi.paystack import Paystack
 from dotenv import load_dotenv
 from flask_wtf import FlaskForm
-from forms import LoginForm, SignUpForm, EditUserForm, UploadNewspaperForm, ContactForm, ResetPasswordForm, ResetPasswordRequestForm 
+from forms import LoginForm, SignUpForm, EditUserForm, UploadNewspaperForm, ContactForm, ResetPasswordForm, ResetPasswordRequestForm
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 import smtplib
@@ -24,7 +24,7 @@ import smtplib
 
 from src.accounts.token import generate_confirmation_token, confirm_token
 
-from config import send_email, send_feedback # send_password_reset_email
+from config import send_email, send_feedback, send_password_reset_email
 
 main = Blueprint('main', __name__)
 
@@ -69,7 +69,7 @@ def unauthorized(e):
 ######################################
 
 @main.route('/register', methods=['GET', 'POST'])
-@logout_required
+# @logout_required
 def register():
     if request.method == 'POST':
         name = request.form['name']
@@ -96,8 +96,8 @@ def register():
             send_email(email, subject, html)
             flash('Registration successful! You can now log in.', 'success')
             return redirect(url_for('main.login'))
-            
-        
+
+
         except IntegrityError:
             db.session.rollback()
             flash('An error occurred during registration. Please try again.', 'danger')
@@ -177,28 +177,28 @@ def login():
         return redirect(url_for('main.login'))
 
 
-mail = Mail()
-def send_password_reset_email(user):
+# mail = Mail()
+# def send_password_reset_email(user):
 
-    """Initialize the serializer with the app's secret key"""
-    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+#     """Initialize the serializer with the app's secret key"""
+#     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
 
-    """Generate a token"""
-    token = serializer.dumps(user.email, salt='password-reset-salt')
+#     """Generate a token"""
+#     token = serializer.dumps(user.email, salt='password-reset-salt')
 
-    """Create the password reset email"""
-    msg = Message('Reset Your Password', 
-                  sender=current_app.config["MAIL_DEFAULT_SENDER"], 
-                  recipients=[user.email])
+#     """Create the password reset email"""
+#     msg = Message('Reset Your Password',
+#                   sender=current_app.config["MAIL_DEFAULT_SENDER"],
+#                   recipients=[user.email])
 
-    """Email body with the link to reset password"""
-    msg.body = (
-        "To reset your password, visit the following link: "
-        f"{url_for('main.reset_password', token=token, _external=True)}"
-    )
-    
-    # Send the email
-    mail.send(msg)
+#     """Email body with the link to reset password"""
+#     msg.body = (
+#         "To reset your password, visit the following link: "
+#         f"{url_for('main.reset_password', token=token, _external=True)}"
+#     )
+
+#     # Send the email
+#     mail.send(msg)
 
 @main.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
@@ -217,8 +217,10 @@ def reset_password_request():
 
 @main.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
+    """Initialize the serializer with the app's secret key"""
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     try:
-        email = s.loads(token, salt='password-reset-salt', max_age=3600)
+        email = serializer.loads(token, salt='password-reset-salt', max_age=3600)
     except Exception:
         flash('The password reset link is invalid or has expired.')
         return redirect(url_for('main.reset_password_request'))
@@ -274,7 +276,7 @@ def delete_user(user_id):
     if not current_user.is_admin:
         flash('Unauthorized access. Admins only.', 'danger')
         return redirect(url_for('main.index'))
-    
+
     user = User.query.get_or_404(user_id)
     if user.id == current_user.id:
         flash('You cannot delete your own account.', 'warning')
@@ -314,7 +316,7 @@ def allowed_file(filename):
 # @login_required
 def upload_file():
     form = UploadNewspaperForm()
-    
+
     if form.validate_on_submit():
         file = form.pdf_file.data
         filename = secure_filename(file.filename)
@@ -325,7 +327,7 @@ def upload_file():
         thumbnail_filename = 'thumbnail_' + filename + '.png'
         thumbnail_path = os.path.join(current_app.config['UPLOAD_FOLDER'], thumbnail_filename)
         create_thumbnail(pdf_path, thumbnail_path)
-        
+
         new_paper = Newspaper(
             title=form.title.data,
             pdf_file=filename,
@@ -364,7 +366,7 @@ def admin():
     if not current_user.is_admin:
         flash('Unauthorized access. Admins only.', 'danger')
         return redirect(url_for('main.login'))
-    
+
     users = User.query.all()
     return render_template('admin.html', current_users=users)
 
@@ -412,7 +414,7 @@ def payment(newspaper_id):
     newspaper = Newspaper.query.get_or_404(newspaper_id)
     amount = 10000
     email = current_user.email
-    
+
     response = Transaction.initialize(amount=str(amount), email=email)
     print('this is the response', response)
     new_subscription = Subscription(
@@ -427,7 +429,7 @@ def payment(newspaper_id):
 
     a_url = response['data']['authorization_url']
     return redirect(a_url)
-    
+
     # Handle GET request by rendering the payment form template
     # return render_template('payment_form.html', newspaper=newspaper, amount=amount)
 
@@ -440,21 +442,21 @@ def payment_verification():
             return jsonify({'message': 'Request must be JSON with Content-Type application/json'}), 400
 
     paramz = request.args.get('trxref', 'None')
-    
+
     details = Transaction.verify(reference=paramz)
     status = details['data']['status']
 
     subscription = Subscription.query.filter_by(payment_id=paramz).first()
     print('this is subscription id', subscription)
-    
+
     if status == 'success':
         if subscription:
             subscription.active = True
             db.session.commit()
-            # return redirect(url_for('main.dashboard'))      
+            # return redirect(url_for('main.dashboard'))
     else:
         print(f"Payment verification failed with status: {status}")
-    
+
     return jsonify({'message': 'Payment verification failed'}), 400
 
 
@@ -506,7 +508,7 @@ def contact():
         name = form.name.data
         email = form.email.data
         message = form.message.data
-        
+
         template = f"""
             <p><strong>Name:</strong> {name}</p>
             <p><strong>Email:</strong> {email}</p>

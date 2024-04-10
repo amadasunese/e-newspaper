@@ -8,13 +8,21 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    
+
     <div class="welcome-container">
         <div class="image-side">
             <!-- Image or branding can go here -->
         </div>
         <div class="login-side">
             <div class="login-box">
+                <!-- Flash Messages Display -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
                 <!-- Welcoming message -->
                 <div class="welcome-message">
                     <h4 class="text-center mb-4">The Nigerian Observer E-Copy Portal!</h4>
