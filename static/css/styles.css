@@ -282,5 +282,38 @@ body {
 /*    b*/
 
 
+/* reading newspaper page (view_pdf.html) */
 
+.container {
+    width: 95%;
+    max-width: 960px;
+    margin: auto;
+}
+#pdf-render canvas {
+    width: 100%;
+    height: auto;
+}
+.pdf-navigation {
+    text-align: center;
+    margin-top: 10px;
+}
+.pdf-navigation button {
+    padding: 10px;
+    font-size: 16px;
+}
+#page-info {
+    margin: 0 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .pdf-navigation button {
+        width: 100%;
+        margin-top: 5px;
+    }
+    .pdf-navigation span {
+        display: block;
+        margin-top: 5px;
+    }
+}
 

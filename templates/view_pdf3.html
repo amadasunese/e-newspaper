@@ -3,15 +3,17 @@
 {% block content %}
 <div class="container">
     <h2>View Newspaper</h2>
+
     <div id="pdf-render"></div>
+
     <div class="pdf-navigation">
         <button id="prev-page">Previous Page</button>
         <span id="page-info">Page <span id="page-num"></span> of <span id="page-count"></span></span>
         <button id="next-page">Next Page</button>
     </div>
+
     <script src="//mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script>
 
-    <!-- Custom script to load and navigate PDF -->
     <script type="module">
         // Configuration for PDF.js
         pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.mjs';
@@ -20,9 +22,22 @@
             pageNum = 1,
             pageRendering = false,
             pageNumPending = null,
-            scale = 0.8,
-            canvas = document.createElement('canvas'),
+            scale = 1,  canvas = document.createElement('canvas'),
             ctx = canvas.getContext('2d');
+
+        // Responsive layout using CSS media queries
+        const mediaQueryList = window.matchMedia("(max-width: 768px)");  const adjustLayoutForMobile = () => {
+            if (mediaQueryList.matches) {
+                // Mobile layout styles
+                document.querySelector('.container').style. flexDirection = 'column';
+                document.getElementById('pdf-render').style.width = '100%';  } else {
+                // Desktop layout styles (remove any mobile specific styles)
+                document.querySelector('.container').style. flexDirection = '';
+                document.getElementById('pdf-render').style.width = '';
+            }
+        };
+
+        mediaQueryList.addListener(adjustLayoutForMobile);  adjustLayoutForMobile();  // ... rest of your existing PDF rendering script ...
 
         // Display the specified page of the PDF
         function renderPage(num) {
@@ -102,6 +117,7 @@
 
         // Append the canvas to the PDF render container
         document.getElementById('pdf-render').appendChild(canvas);
+
     </script>
 </div>
 {% endblock %}
