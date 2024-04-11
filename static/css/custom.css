@@ -1,6 +1,8 @@
 body, html {
     height: 100%;
     margin: 0;
+    background: url('/static/images/reading_observer1.jpeg') no-repeat center center;
+    background-size: cover;
 }
 .welcome-container {
     display: flex;
@@ -8,14 +10,18 @@ body, html {
 }
 .image-side {
     flex: 1;
-    background: url('/static/images/reading_observer.jpeg') no-repeat center center;
+    /* background: url('/static/images/reading_observer1.jpeg') no-repeat center center; */
     background-size: cover;
+    height: auto;
+    /* width: 150%; */
 }
 .login-side {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
+    /* background: url('/static/images/login-back.jpg') no-repeat center center;
+    background-size: cover; */
 }
 .login-box {
     width: 400px;
