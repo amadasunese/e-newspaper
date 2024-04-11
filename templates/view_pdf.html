@@ -1,66 +1,57 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-4">
     <h2>View Newspaper</h2>
     <!-- Container for the PDF viewer -->
-    <div id="pdf-render"></div>
+    <div id="pdf-render" style="overflow-x: auto; width: 100%;"></div>
 
     <!-- Navigation controls -->
-    <div class="pdf-navigation">
-        <button id="prev-page">Previous Page</button>
+    <div class="pdf-navigation text-center my-3">
+        <button id="prev-page" class="btn btn-primary mr-2">Previous Page</button>
         <span id="page-info">Page <span id="page-num"></span> of <span id="page-count"></span></span>
-        <button id="next-page">Next Page</button>
+        <button id="next-page" class="btn btn-primary ml-2">Next Page</button>
     </div>
 
-    <!-- Include PDF.js library -->
     <script src="//mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script>
-
-    <!-- Custom script to load and navigate PDF -->
     <script type="module">
-        // Configuration for PDF.js
-        pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.mjs';
+        import pdfjsLib from '//mozilla.github.io/pdf.js/build/pdf.js';
 
-        let pdfDoc = null,
-            pageNum = 1,
-            pageRendering = false,
-            pageNumPending = null,
-            scale = 0.8,
-            canvas = document.createElement('canvas'),
-            ctx = canvas.getContext('2d');
+        const loadingTask = pdfjsLib.getDocument('{{ pdf_url }}');
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+        const scale = 1.0;
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
 
-        // Display the specified page of the PDF
         function renderPage(num) {
             pageRendering = true;
-            // Using promise to fetch the page
             pdfDoc.getPage(num).then(function(page) {
                 const viewport = page.getViewport({ scale: scale });
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
 
-                // Render PDF page into canvas context
                 const renderContext = {
                     canvasContext: ctx,
                     viewport: viewport
                 };
                 const renderTask = page.render(renderContext);
 
-                // Wait for rendering to finish
                 renderTask.promise.then(function() {
                     pageRendering = false;
                     if (pageNumPending !== null) {
-                        // New page rendering is pending
                         renderPage(pageNumPending);
                         pageNumPending = null;
                     }
                 });
-            });
 
-            // Update page counters
-            document.getElementById('page-num').textContent = num;
+                document.getElementById('page-num').textContent = num;
+                document.getElementById('page-count').textContent = pdfDoc.numPages;
+            });
         }
 
-        // Queue rendering of the next page
         function queueRenderPage(num) {
             if (pageRendering) {
                 pageNumPending = num;
@@ -70,43 +61,33 @@
         }
 
         function onPrevPage() {
-            if (pageNum <= 1) {
-                return;
-            }
+            if (pageNum <= 1) return;
             pageNum--;
             queueRenderPage(pageNum);
         }
 
         function onNextPage() {
-            if (pageNum >= pdfDoc.numPages) {
-                return;
-            }
+            if (pageNum >= pdfDoc.numPages) return;
             pageNum++;
             queueRenderPage(pageNum);
         }
 
-        // The URL of your PDF file
-        const url = "{{ pdf_url }}";
-        // <div>Debug PDF URL: {{ pdf_url }}</div>
+        document.getElementById('prev-page').addEventListener('click', () => onPrevPage());
+        document.getElementById('next-page').addEventListener('click', () => onNextPage());
 
-        // Asynchronously load the PDF
-        pdfjsLib.getDocument(url).promise.then(function(pdfDoc_) {
+        loadingTask.promise.then(function(pdfDoc_) {
             pdfDoc = pdfDoc_;
-            // Now pdfDoc is guaranteed not to be null
-            document.getElementById('page-count').textContent = pdfDoc.numPages;
-
-            // Initial/first page rendering
             renderPage(pageNum);
-        }).catch(function(error) {
-            console.error('Error loading PDF: ', error.message);
         });
-
-        // Hook up page navigation handlers
-        document.getElementById('prev-page').addEventListener('click', onPrevPage);
-        document.getElementById('next-page').addEventListener('click', onNextPage);
-
-        // Append the canvas to the PDF render container
-        document.getElementById('pdf-render').appendChild(canvas);
     </script>
 </div>
+<style>
+    @media (max-width: 768px) {
+    #pdf-render canvas {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+</style>
 {% endblock %}

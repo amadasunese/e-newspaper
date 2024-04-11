@@ -2,7 +2,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
+<div class="container mt-4"> <!-- Added margin-top for spacing -->
+    <h2 class="text-center mb-4">To subscribe, select any of the edition of The Nigerian Observer</h2> <!-- Heading added -->
     <div class="row">
         {% for newspaper in newspapers[::-1] %}
         <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4"> <!-- Adjusted for responsiveness -->
