@@ -2,32 +2,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-     <!-- Adsense Placeholder
-     <div class="adsense-placeholder">
-        Adsense goes here
-    </div> -->
 <div class="container">
-    <!-- <h3>To subscribe, select any of the edition of The Nigerian Observer</h3> -->
     <div class="row">
         {% for newspaper in newspapers[::-1] %}
-        <div class="col-md-3">
-            <div class="card" style="width: 17rem;">
+        <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4"> <!-- Adjusted for responsiveness -->
+            <div class="card h-100"> <!-- Removed inline style for width -->
                 <img src="{{ url_for('static', filename='pdfs/' + (newspaper.thumbnail or 'default.jpg')) }}" class="card-img-top" alt="{{ newspaper.title }}">
-                <div class="card-body">
+                <div class="card-body d-flex flex-column"> <!-- Added for flex column -->
                     <h5 class="card-title">{{ newspaper.title }}</h5>
                     <p class="card-text">{{ newspaper.summary }}</p>
-                    {% if newspaper.id in subscribed_newspapers %}
-                        <a href="{{ url_for('main.read_newspaper', newspaper_id=newspaper.id) }}" class="btn btn-success">Read</a>
-                    {% else %}
-                        <a href="{{ url_for('main.subscribe_and_pay', newspaper_id=newspaper.id) }}" class="btn btn-primary">Subscribe</a>
-                    {% endif %}
-                    {% if current_user.is_admin %}
-                        <form action="{{ url_for('main.delete_newspaper', newspaper_id=newspaper.id) }}" method="POST" style="display:inline;">
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
-                    {% endif %}
+                    <div class="mt-auto"> <!-- Flex utilities for pushing buttons to the bottom -->
+                        {% if newspaper.id in subscribed_newspapers %}
+                            <a href="{{ url_for('main.read_newspaper', newspaper_id=newspaper.id) }}" class="btn btn-success">Read</a>
+                        {% else %}
+                            <a href="{{ url_for('main.subscribe_and_pay', newspaper_id=newspaper.id) }}" class="btn btn-primary">Subscribe</a>
+                        {% endif %}
+                        {% if current_user.is_admin %}
+                            <form action="{{ url_for('main.delete_newspaper', newspaper_id=newspaper.id) }}" method="POST" class="d-inline">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
