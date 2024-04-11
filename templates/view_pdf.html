@@ -13,9 +13,13 @@
         <button id="next-page" class="btn btn-primary ml-2">Next Page</button>
     </div>
 
+    <!-- Include PDF.js library -->
     <script src="//mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script>
+
+    <!-- Custom script to load and navigate PDF -->
     <script type="module">
-        import pdfjsLib from '//mozilla.github.io/pdf.js/build/pdf.js';
+        // Configuration for PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.mjs';
 
         const loadingTask = pdfjsLib.getDocument('{{ pdf_url }}');
         let pdfDoc = null;
