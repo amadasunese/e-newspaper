@@ -9,6 +9,12 @@
     }
 }
 
+@media (max-width: 768px) {
+    .navbar-brand-text {
+        display: none;
+    }
+}
+
 html, body {
     height: 100%;
     margin: 0;
