@@ -1,4 +1,4 @@
-from flask import current_app, Blueprint, abort, request, send_from_directory, render_template, jsonify, request, redirect, url_for, flash
+from flask import current_app, Blueprint, send_from_directory, abort, request, send_from_directory, render_template, jsonify, request, redirect, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from src.accounts.models import db, User, Newspaper, Subscription
 from werkzeug.utils import secure_filename
@@ -20,6 +20,7 @@ from forms import LoginForm, SignUpForm, EditUserForm, UploadNewspaperForm, Cont
 from flask_mail import Mail, Message
 from itsdangerous import URLSafeTimedSerializer
 import smtplib
+from flask import send_file
 
 
 from src.accounts.token import generate_confirmation_token, confirm_token
@@ -528,3 +529,104 @@ def contact():
 @main.route('/advertising')
 def advertising():
     return render_template('advertising.html')
+
+
+# # Downloading newspapers
+
+@main.route('/download_newspaper/<int:newspaper_id>')
+@login_required
+def download_newspaper(newspaper_id):
+    # Fetch the newspaper details from the database
+    newspaper = Newspaper.query.get(newspaper_id)
+    if not newspaper:
+        abort(404, description="Newspaper not found.")
+
+    # Check if the current user is subscribed to the newspaper
+    subscription = Subscription.query.filter_by(user_id=current_user.id, newspaper_id=newspaper_id, active=True).first()
+    if not subscription:
+        flash('You are not subscribed to this edition.', 'warning')
+        return redirect(url_for('main.view_latest_issues'))
+
+    # Check if the file exists
+    file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], newspaper.pdf_file)
+    if not os.path.exists(file_path):
+        abort(404, description="File not found.")
+
+    # Serve the file for download
+    return send_from_directory(directory=current_app.config['UPLOAD_FOLDER'], path=newspaper.pdf_file, as_attachment=True)
+
+
+
+# @main.route('/download_newspaper/<int:newspaper_id>')
+# @login_required
+# def download_newspaper(newspaper_id):
+#     # Assuming `get_newspaper_by_id` is a method that fetches the newspaper details
+#     newspaper = get_newspaper_by_id(newspaper_id)
+    
+#     if not newspaper:
+#         flash('Newspaper not found.', 'error')
+#         return redirect(url_for('index'))
+
+#     # Assuming `user_subscribed_to_newspaper` checks if the current user is subscribed
+#     if not user_subscribed_to_newspaper(current_user.id, newspaper_id):
+#         flash('You are not subscribed to this newspaper.', 'error')
+#         return redirect(url_for('index'))
+
+#     # Assuming the PDFs are stored in a directory within the static folder
+#     pdf_directory = '/statci' + '/pdfs/'    # 'static/' + '/pdfs/'
+#     pdf_filename = newspaper.pdf_path  # This should contain the filename of the PDF
+
+#     try:
+#         # Send the file directly for download
+#         return send_from_directory(directory=pdf_directory, path=pdf_filename, as_attachment=True)
+#     except FileNotFoundError:
+#         flash('File not found.', 'error')
+#         return redirect(url_for('index'))
+
+# @main.route('/download_newspaper/<int:newspaper_id>')
+# @login_required
+# def download_newspaper(newspaper_id):
+    
+#     # Assuming a function that fetches newspaper details from the DB
+#     # newspaper = get_newspaper_by_id(newspaper_id)
+#     newspaper = Newspaper.query.get(newspaper_id)
+#     print('this is the id', newspaper)
+    
+#     if not newspaper:
+#         flash('Newspaper not found.', 'error')
+#         return redirect(url_for('main.newspapers'))
+
+#     # Ensure the user is subscribed to the newspaper
+#     if not user_subscribed_to_newspaper(current_user.id, newspaper_id):
+#         flash('You are not subscribed to this newspaper.', 'error')
+#         return redirect(url_for('main.newspapers'))
+
+#     # Construct the full path to the PDF
+#     pdf_directory = os.path.join(current_app.static, 'pdfs')
+#     print('this is the directory', pdf_directory)
+#     pdf_filename = newspaper.pdf_file
+#     print('this is the pdf file name', pdf_filename)
+
+#     # Verify the PDF file exists before attempting to send it
+#     pdf_path = os.path.join(pdf_directory, pdf_filename)
+#     if not os.path.exists(pdf_path):
+#         flash('PDF file does not exist.', 'error')
+#         return redirect(url_for('main.newspapers'))
+
+#     # Correctly setting MIME type and headers for PDF download
+#     try:
+#         return send_from_directory(directory=pdf_directory, path=pdf_filename, as_attachment=True)
+#     except FileNotFoundError:
+#         flash('File not found.', 'error')
+#         return redirect(url_for('main.newspapers'))
+    
+    
+# def get_newspaper_by_id(newspaper_id):
+#     # Placeholder for database query
+#     Newspaper.query.get(newspaper_id)
+#     pass
+
+# def user_subscribed_to_newspaper(user_id, newspaper_id):
+#     # Placeholder for subscription check
+#     Subscription.query.filter_by(user_id=user_id, newspaper_id=newspaper_id).first() is not None
+#     pass

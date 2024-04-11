@@ -1,20 +1,20 @@
+<!-- newspapers.html -->
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="text-center mb-4">To subscribe, select any edition of The Nigerian Observer</h2>
+<div class="container mt-4"> <!-- Added margin-top for spacing -->
+    <h2 class="text-center mb-4">To subscribe, select any of the edition of The Nigerian Observer</h2> <!-- Heading added -->
     <div class="row">
         {% for newspaper in newspapers[::-1] %}
-        <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
-            <div class="card h-100">
+        <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4"> <!-- Adjusted for responsiveness -->
+            <div class="card h-100"> <!-- Removed inline style for width -->
                 <img src="{{ url_for('static', filename='pdfs/' + (newspaper.thumbnail or 'default.jpg')) }}" class="card-img-top" alt="{{ newspaper.title }}">
-                <div class="card-body d-flex flex-column">
+                <div class="card-body d-flex flex-column"> <!-- Added for flex column -->
                     <h5 class="card-title">{{ newspaper.title }}</h5>
                     <p class="card-text">{{ newspaper.summary }}</p>
-                    <div class="mt-auto">
+                    <div class="mt-auto"> <!-- Flex utilities for pushing buttons to the bottom -->
                         {% if newspaper.id in subscribed_newspapers %}
                             <a href="{{ url_for('main.read_newspaper', newspaper_id=newspaper.id) }}" class="btn btn-success">Read</a>
-                            <a href="{{ url_for('main.download_newspaper', newspaper_id=newspaper.id) }}" class="btn btn-primary">Download</a>
                         {% else %}
                             <a href="{{ url_for('main.subscribe_and_pay', newspaper_id=newspaper.id) }}" class="btn btn-primary">Subscribe</a>
                         {% endif %}
