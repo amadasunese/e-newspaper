@@ -140,7 +140,7 @@ def resend_confirmation():
         flash("Your account has already been confirmed.", "success")
         return redirect(url_for("core.newspapers"))
     token = generate_confirmation_token(current_user.email)
-    confirm_url = url_for("confirm_email", token=token, _external=True)
+    confirm_url = url_for("main.confirm_email", token=token, _external=True)
     html = render_template("confirm_email.html", confirm_url=confirm_url)
     subject = "Please confirm your email"
     send_email(current_user.email, subject, html)
@@ -339,7 +339,7 @@ def upload_file():
         db.session.commit()
 
         flash('Newspaper uploaded successfully!', 'success')
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.newspapers'))
     else:
         for _, errors in form.errors.items():
             for error in errors:

@@ -22,7 +22,7 @@ def create_app(config_class=Config):
     migrate = Migrate(app, db)
 
 
-    db.init_app(app)
+    # db.init_app(app)
     login_manager = LoginManager(app)
     login_manager.login_view = 'main.login'
     login_manager.init_app(app)
