@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Newspaper App</title>
+    <title>The Nigerian Observer Epaper Portal</title>
     <link rel="stylesheet" type="text/css" href="/static/css/styles.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
 
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{{ url_for('main.index') }}">
+        <a class="navbar-brand" href="{{ url_for('main.newspapers') }}">
             <img src="/static/images/observer_logo2.png" width="60" height="60" alt="Logo">
-            <span class="navbar-brand-text">Digital Copy Portal</span>
+            <span class="navbar-brand-text">ePaper Portal</span>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -28,13 +28,14 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('main.contact') }}">Contact Us</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                </li>
                 {% if current_user.is_authenticated %}
                     {% if current_user.is_admin %}
+                    
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('main.upload_file') }}">Upload</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.admin') }}">Admin Dashboard</a>
                         </li>
                     {% endif %}
                     <li class="nav-item">

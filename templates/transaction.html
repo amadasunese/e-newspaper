@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>All Subscription Records</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>User Name</th>
+        <th>Amount</th>
+        <th>Newspaper ID</th>
+        <th>Active</th>
+        <th>Subscription Date</th>
+        <th>Payment ID</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for subscription in subscriptions %}
+      <tr>
+        <td>{{ subscription.id }}</td>
+        <td>
+          {% for user in users %}
+            {% if user.id == subscription.user_id %}
+              {{ user.name }}
+            {% endif %}
+          {% endfor %}
+        </td>
+        <td>{{ subscription.amount }}</td>
+        <td>{{ subscription.newspaper_id }}</td>
+        <td>{{ "Active" if subscription.active else "Inactive" }}</td>
+        <td>{{ subscription.subscription_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        <td>{{ subscription.payment_id }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

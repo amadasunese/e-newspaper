@@ -2,29 +2,33 @@
 
 {% block content %}
 <h1>Admin Panel</h1>
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Username</th>
-            <th scope="col">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for user in current_users %}
-        <tr>
-            <th scope="row">{{ loop.index }}</th>
-            <td>{{ user.username }}</td>
-            <td>
-                <a href="{{ url_for('main.edit_user', user_id=user.id) }}" class="btn btn-info">Edit</a>
-                <a href="{{ url_for('main.delete_user', user_id=user.id) }}" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
-            </td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="3">No users found.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">User Full Name</th>
+      <th scope="col">Username</th>
+      <th scope="col">User Confirmed</th>
+      <th scope="col">Status</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in current_users %}
+    <tr>
+      <td>{{ user.name }}</td>
+      <td>{{ user.username }}</td>
+      <td>{{ 'Yes' if user.is_confirmed else 'No' }}</td>
+      <td>{{ 'Yes' if user.is_admin else 'No' }}</td>
+      <td>
+        <a href="{{ url_for('main.edit_user', user_id=user.id) }}" class="btn btn-info">Edit</a>
+        <a href="{{ url_for('main.delete_user', user_id=user.id) }}" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="5">No users found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 {% endblock %}

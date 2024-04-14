@@ -372,11 +372,103 @@ def admin():
     return render_template('admin.html', current_users=users)
 
 
-@main.route('/dashboard')
+# @main.route('/dashboard')
+# # @login_required
+# def dashboard():
+#     user_subscriptions = Subscription.query.filter_by(user_id=current_user.id).all()
+#     return render_template('dashboard.html', current_user=current_user, user_subscriptions=user_subscriptions)
+
+
+# @main.route('/dashboard')
 # @login_required
+# def dashboard():
+#     user_subscriptions = Subscription.query.filter_by(user_id=current_user.id).all()
+    
+#     subscription = Subscription.query.get(subscription_id)
+
+#     # Fetching total subscribers
+#     total_subscribers = len(set(subscription.user_id for subscription in Subscription.query.all()))
+    
+#     # Fetching total amount earned, considering None values
+#     total_amount_earned = sum(subscription.amount for subscription in Subscription.query.all() if subscription.amount is not None)
+    
+#     return render_template('dashboard.html', current_user=current_user,
+#                            user_subscriptions=user_subscriptions,
+#                            total_subscribers=total_subscribers,
+#                            total_amount_earned=total_amount_earned)
+
+# @main.route('/dashboard')  # Add subscription_id to the route
+# @login_required
+# def dashboard(subscription_id): # subscription_id=None  Make subscription_id optional
+
+#     subscription = Subscription.query.get(subscription_id)
+#     user_subscriptions = Subscription.query.filter_by(user_id=current_user.id).all()
+    
+#     # subscription = None  # Initialize subscription as None
+#     # # if subscription_id:  # Check if subscription_id is provided
+#     # #     subscription = Subscription.query.get(subscription_id)
+    
+#     # Fetching total subscribers
+#     total_subscribers = len(set(subscription.user_id for subscription in Subscription.query.all()))
+    
+#     # Fetching total amount earned, considering None values
+#     total_amount_earned = sum(subscription.amount for subscription in Subscription.query.all() if subscription.amount is not None)
+    
+#     return render_template('dashboard.html', current_user=current_user,
+#                            user_subscriptions=user_subscriptions,
+#                            total_subscribers=total_subscribers,
+#                            total_amount_earned=total_amount_earned,
+#                            subscription=subscription)  # Pass subscription to the template
+
+
+# @main.route('/dashboard/<int:subscription_id>')
+# @login_required
+# def dashboard(subscription_id):
+#     user_subscriptions = Subscription.query.filter_by(user_id=current_user.id).all()
+    
+#     # Fetching total subscribers
+#     total_subscribers = len(set(subscription.user_id for subscription in Subscription.query.all()))
+    
+#     # Fetching total amount earned, considering None values
+#     total_amount_earned = sum(subscription.amount for subscription in Subscription.query.all() if subscription.amount is not None)
+    
+#     # Fetch subscription details if subscription_id is provided
+#     subscription = None
+#     if subscription_id is not None:
+#         subscription = Subscription.query.get(subscription_id)
+    
+#     return render_template('dashboard.html', current_user=current_user,
+#                            user_subscriptions=user_subscriptions,
+#                            total_subscribers=total_subscribers,
+#                            total_amount_earned=total_amount_earned,
+#                            subscription=subscription)
+
+@main.route('/dashboard')
+@login_required
 def dashboard():
     user_subscriptions = Subscription.query.filter_by(user_id=current_user.id).all()
-    return render_template('dashboard.html', current_user=current_user, user_subscriptions=user_subscriptions)
+    
+    # Fetching total subscribers
+    total_subscribers = len(set(subscription.user_id for subscription in Subscription.query.all()))
+    
+    # Fetching total amount earned, considering None values
+    total_amount_earned = sum(subscription.amount for subscription in Subscription.query.all() if subscription.amount is not None)
+    
+    # Fetch subscription ID or calculate it here
+    # For example:
+    # Fetch subscription ID for the current user
+    subscription_id = Subscription.query.filter_by(user_id=current_user.id).first().id
+    # subscriptions = Subscription.query.filter_by(subscription_id=subscription_id).first()
+    # subscription = Subscription.query.get(subscription_id)
+    # subscription_id = Subscription.query.get_subscription_id()  # Replace with your logic to obtain subscription ID
+    
+    return render_template('dashboard.html', current_user=current_user,
+                           user_subscriptions=user_subscriptions,
+                           total_subscribers=total_subscribers,
+                           total_amount_earned=total_amount_earned,
+                           subscription=subscription_id)  # Pass subscription ID to template
+
+
 
 
 ######################################
@@ -555,6 +647,37 @@ def download_newspaper(newspaper_id):
     # Serve the file for download
     return send_from_directory(directory=current_app.config['UPLOAD_FOLDER'], path=newspaper.pdf_file, as_attachment=True)
 
+
+
+
+@main.route('/transaction/<int:subscription_id>')
+def transaction(subscription_id):
+    subscription = Subscription.query.get(subscription_id)
+
+    return render_template('transaction.html', subscription=subscription)
+
+
+
+# @main.route('/transactions')
+# def transactions():
+#     subscriptions = Subscription.query.all()
+#     user = User.query.filter_by(user.name).firstl()
+#     return render_template('transaction.html', user=user, subscriptions=subscriptions)
+
+
+
+@main.route('/transactions')
+def transactions():
+    # Fetching subscriptions
+    subscriptions = Subscription.query.all()
+    
+    # Extracting user IDs from subscriptions
+    user_ids = {subscription.user_id for subscription in subscriptions}
+    
+    # Fetching users who have subscribed
+    users_subscribed = User.query.filter(User.id.in_(user_ids)).all()
+    
+    return render_template('transaction.html', users=users_subscribed, subscriptions=subscriptions)
 
 
 # @main.route('/download_newspaper/<int:newspaper_id>')
