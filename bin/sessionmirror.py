@@ -1,4 +1,4 @@
-#!/Users/apple/e-newspaper/bin/python
+#!/Users/apple/e-newspaper/bin/python3
 '''
 The MIT License (MIT)
 

@@ -1,4 +1,4 @@
-#!/Users/apple/e-newspaper/bin/python
+#!/Users/apple/e-newspaper/bin/python3
 # Create Lyman/Fitz style long flat Design Files from plain-text onset files
 # EKK / June 2015
 # Python 2/3 compatibile, depends on Pandas and Numpy/Scipy

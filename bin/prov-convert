@@ -1,4 +1,4 @@
-#!/Users/apple/e-newspaper/bin/python
+#!/Users/apple/e-newspaper/bin/python3
 # encoding: utf-8
 """
 convert -- Convert PROV-JSON to RDF, PROV-N, PROV-XML, or graphical formats (SVG, PDF, PNG)

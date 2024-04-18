@@ -1,4 +1,4 @@
-#!/Users/apple/e-newspaper/bin/python
+#!/Users/apple/e-newspaper/bin/python3
 # encoding: utf-8
 """
 prov-compare -- Compare two PROV-JSON, PROV-XML, or RDF (PROV-O) files for equivalence
